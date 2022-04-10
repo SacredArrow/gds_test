@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WebSocket demo</title>
+    </head>
+    <body>
+        <script>
+            var ws = new WebSocket("ws://127.0.0.1:5678/"),
+                general_info = document.createElement('div');
+                messages = document.createElement('ul');
+            general_info.setAttribute('id', 'general_info');
+            ws.onmessage = function (event) {
+                var messages = document.getElementsByTagName('ul')[0];
+                messages.innerHTML = '';
+                var data = JSON.parse(event.data);
+                var general_info = document.getElementById('general_info');
+                general_info.textContent = `Number of threads : ${data.n_threads}, no more than ${data.max_bytes} bytes per thread`;
+                data.files.forEach((element) => {
+                    var message = document.createElement('li'),
+                    content = document.createElement('p'),
+                    link = document.createElement('a');
+                    link.setAttribute('href', element.path);
+                    link.textContent = element.name;
+                    content.textContent = `${(element.size / 1024 / 1024).toFixed(2)} Mb, ${element.finished}/${element.total} parts ready.`;
+                    message.appendChild(link);
+                    message.appendChild(content);
+                    messages.appendChild(message);
+                })
+
+            };
+            ws.onopen = function (event) {
+                console.log('Open')
+                ws.send('Hello Server!');
+            };
+            document.body.appendChild(general_info);
+            document.body.appendChild(messages);
+        </script>
+    </body>
+</html>
